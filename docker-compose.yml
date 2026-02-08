@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+  api:
+    build: .
+    environment:
+      FLASK_ENV: production
+      SECRET_KEY: change-me
+      JWT_SECRET_KEY: change-me-too
+      DATABASE_URL: mysql+pymysql://auth_user:auth_pass@db:3306/auth_db
+      ACCESS_TOKEN_EXPIRES_MINUTES: 10
+      REFRESH_TOKEN_EXPIRES_DAYS: 7
+      OTP_EXPIRES_MINUTES: 5
+      RESET_TOKEN_EXPIRES_MINUTES: 20
+      CSRF_PROTECT: "true"
+      RATE_LIMIT_ENABLED: "true"
+      MAIL_SENDER: no-reply@example.com
+      FRONTEND_BASE_URL: https://frontend.app
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+volumes:
+  mysql_data:
