@@ -1,0 +1,17 @@
+OTP Verification
+
+Hi {{ username }},
+
+Your verification code is: {{ otp_code }}
+
+This code expires in {{ otp_expiry }} minutes.
+
+Please do not share this code with anyone. REX support will never ask for your OTP code.
+
+If you didn't request this code, please contact support immediately at {{ support_url }}.
+
+---
+© 2026 REX. Smart Home Assistant Robot Platform
+Privacy Policy: {{ privacy_url }}
+Terms of Service: {{ terms_url }}
+Support: {{ support_url }}
