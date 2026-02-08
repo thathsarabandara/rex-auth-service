@@ -1,0 +1,21 @@
+Welcome to REX
+
+Hi {{ username }},
+
+Your email has been verified successfully! Your REX account is now active and ready to use.
+
+Features you can now enjoy:
+✓ Control your smart home devices from anywhere
+✓ Bank-level security for your peace of mind
+✓ Fast and responsive automation experiences
+✓ Access on web, mobile, and IoT devices
+
+Get started: {{ dashboard_url }}
+
+If you have any questions, contact us at {{ support_email }}.
+
+---
+© 2026 REX. Smart Home Assistant Robot Platform
+Privacy Policy: {{ privacy_url }}
+Terms of Service: {{ terms_url }}
+Support: {{ support_url }}

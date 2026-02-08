@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to REX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+        .body {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .welcome-message {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 24px;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .features {
+            margin: 32px 0;
+        }
+        .feature-item {
+            display: flex;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .feature-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            min-width: 24px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 24px 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #666;
+            margin: 8px 0;
+        }
+        .footer-links {
+            margin-top: 12px;
+        }
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 12px;
+            margin: 0 12px;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">REX</div>
+            <div class="title">Welcome Aboard! 🎉</div>
+            <div class="subtitle">Your account is ready</div>
+        </div>
+
+        <div class="body">
+            <div class="greeting">
+                Hi <strong>{{ username }}</strong>,<br><br>
+                Your email has been verified successfully! Your REX account is now active and ready to use.
+            </div>
+
+            <div class="welcome-message">
+                Welcome to the REX Smart Home Assistant Robot Platform! We're excited to have you on board. Get started with intelligent home automation today.
+            </div>
+
+            <div class="features">
+                <div class="feature-item">
+                    <div class="feature-icon">🏠</div>
+                    <div>Control your smart home devices from anywhere</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔐</div>
+                    <div>Bank-level security for your peace of mind</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div>Fast and responsive automation experiences</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div>Access on web, mobile, and IoT devices</div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="{{ dashboard_url }}" class="cta-button">Go to Dashboard</a>
+            </div>
+
+            <p style="font-size: 14px; color: #666; margin-top: 32px; line-height: 1.6;">
+                If you have any questions or need assistance, our support team is ready to help at <a href="mailto:{{ support_email }}" style="color: #667eea;">{{ support_email }}</a>.
+            </p>
+        </div>
+
+        <div class="footer">
+            <div class="footer-text">© 2026 REX. All rights reserved.</div>
+            <div class="footer-text">Smart Home Assistant Robot Platform</div>
+            <div class="footer-links">
+                <a href="{{ privacy_url }}">Privacy Policy</a>
+                <a href="{{ terms_url }}">Terms of Service</a>
+                <a href="{{ support_url }}">Support</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
