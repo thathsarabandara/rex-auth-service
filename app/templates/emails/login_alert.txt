@@ -1,0 +1,24 @@
+Suspicious Login Attempt Alert
+
+Hi {{ username }},
+
+We detected suspicious activity on your REX account.
+
+Someone attempted to log into your account from an unrecognized location or device. If this was you, you can safely ignore this alert.
+
+Login Details:
+Timestamp: {{ attempt_time }}
+IP Address: {{ ip_address }}
+Device: {{ device_info }}
+Status: {{ attempt_status }}
+
+Was this you? If you recognize this login attempt, no action is required. However, we recommend changing your password if you suspect unauthorized access.
+
+Secure Your Account: {{ secure_account_url }}
+Review Activity: {{ review_activity_url }}
+
+---
+© 2026 REX. Smart Home Assistant Robot Platform
+Privacy Policy: {{ privacy_url }}
+Terms of Service: {{ terms_url }}
+Support: {{ support_url }}
