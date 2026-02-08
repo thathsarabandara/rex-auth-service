@@ -1,0 +1,51 @@
+### Register initiate
+POST http://localhost:8000/auth/register/initiate
+Content-Type: application/json
+
+{
+  "username": "demo",
+  "email": "demo@example.com",
+  "password": "StrongPass1",
+}
+
+### Register verify
+POST http://localhost:8000/auth/register/verify
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "otp": "123456",
+  "temp_token": "TOKEN_FROM_STEP1"
+}
+
+### Login
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "password": "StrongPass1",
+  "tenant_id": 1
+}
+
+### Refresh token
+POST http://localhost:8000/auth/token/refresh
+Authorization: Bearer YOUR_REFRESH_TOKEN
+
+### Forgot password
+POST http://localhost:8000/auth/password/forgot
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "tenant_id": 1
+}
+
+### Reset password
+POST http://localhost:8000/auth/password/reset
+Content-Type: application/json
+
+{
+  "reset_token": "RESET_TOKEN_FROM_EMAIL",
+  "new_password": "StrongerPass2"
+}
