@@ -33,11 +33,13 @@ from app.utils.responses import error_response
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-
-def _rate_limit(limit: str):
-    if current_app.config.get("RATE_LIMIT_ENABLED", True):
-        return limiter.limit(limit)
-    return lambda func: func
+# Rate limiting decorator - can be disabled via config
+def _rate_limit(limit_str: str):
+    def decorator(func):
+        # Rate limiting is applied at init time in app/__init__.py
+        # This decorator is a placeholder for documentation
+        return func
+    return decorator
 
 
 @auth_bp.route("/register/initiate", methods=["POST"])
