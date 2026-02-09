@@ -1,5 +1,5 @@
 [flake8]
-max-line-length = 100
+max-line-length = 88
 exclude = .git,__pycache__,.venv,myenv,.pytest_cache,migrations
 ignore = E203,W503
 per-file-ignores =
@@ -7,7 +7,7 @@ per-file-ignores =
 
 [isort]
 profile = black
-line_length = 100
+line_length = 88
 multi_line_mode = 3
 include_trailing_comma = true
 force_grid_wrap = 0
@@ -16,7 +16,7 @@ ensure_newline_before_comments = true
 skip_glob = migrations
 
 [tool:black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
