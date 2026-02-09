@@ -14,4 +14,4 @@ COPY . /app
 
 ENV FLASK_APP=manage.py
 
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "wsgi:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "--access-logfile", "-", "--error-logfile", "-", "wsgi:app"]
