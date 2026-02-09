@@ -16,8 +16,8 @@ services:
     build: .
     environment:
       FLASK_ENV: production
-      SECRET_KEY: change-me
-      JWT_SECRET_KEY: change-me-too
+      SECRET_KEY: 4d666089fc013268197ab370ad619b96
+      JWT_SECRET_KEY: FvweS0L9ZVafXVuuKz6kK8ZRv1WuyaxV5BMVHamQg58H03NsmS90KuEvhMxQUvnXAUbrHTrHtIuYgeeu8D46sF
       DATABASE_URL: mysql+pymysql://auth_user:auth_pass@db:3306/auth_db
       ACCESS_TOKEN_EXPIRES_MINUTES: 10
       REFRESH_TOKEN_EXPIRES_DAYS: 7
@@ -25,8 +25,15 @@ services:
       RESET_TOKEN_EXPIRES_MINUTES: 20
       CSRF_PROTECT: "true"
       RATE_LIMIT_ENABLED: "true"
-      MAIL_SENDER: no-reply@example.com
-      FRONTEND_BASE_URL: https://frontend.app
+      MAIL_SENDER: stormprojects47@gmail.com
+      FRONTEND_BASE_URL: https://rex-47.vercel.app
+      SMTP_ENABLED: "true"
+      SMTP_SERVER: smtp.gmail.com
+      SMTP_PORT: "587"
+      SMTP_USERNAME: "stormprojects47@gmail.com"
+      SMTP_PASSWORD: "dutrpeztytpepvzi"
+      SMTP_USE_TLS: "true"
+      SMTP_TIMEOUT: "10"
     depends_on:
       - db
     ports:
