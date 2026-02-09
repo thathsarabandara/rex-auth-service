@@ -5,7 +5,17 @@ from app.extensions import db
 
 
 def utcnow():
+    """Return current UTC time with timezone awareness."""
     return datetime.now(timezone.utc)
+
+
+def ensure_aware(dt: datetime) -> datetime:
+    """Ensure datetime is timezone-aware (convert naive to UTC)."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
 
 
 class UserStatus(str, Enum):
@@ -57,10 +67,11 @@ class OtpSession(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), nullable=False)
-    tenant_id = db.Column(db.Integer, db.ForeignKey("tenants.id"), nullable=False)
     otp_hash = db.Column(db.String(255), nullable=False)
     temp_token = db.Column(db.String(255), nullable=False)
     expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    sent_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    is_used = db.Column(db.Boolean, default=False, nullable=False)
     attempts = db.Column(db.Integer, default=0, nullable=False)
     purpose = db.Column(db.Enum(OtpPurpose), nullable=False)
 
