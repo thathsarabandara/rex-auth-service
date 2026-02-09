@@ -51,7 +51,8 @@ def create_app() -> Flask:
         while retry_count < max_retries:
             try:
                 app.logger.info(
-                    f"Attempting to create database tables (attempt {retry_count + 1}/{max_retries})"
+                    f"Attempting to create database tables "
+                    f"(attempt {retry_count + 1}/{max_retries})"
                 )
                 db.create_all()
                 app.logger.info("✓ Database tables created/verified successfully")
@@ -60,12 +61,14 @@ def create_app() -> Flask:
                 retry_count += 1
                 if retry_count < max_retries:
                     app.logger.warning(
-                        f"Database not ready yet: {str(e)}. Retrying in 2 seconds..."
+                        f"Database not ready yet: {str(e)}. "
+                        f"Retrying in 2 seconds..."
                     )
                     time.sleep(2)
                 else:
                     app.logger.error(
-                        f"Failed to create database tables after {max_retries} attempts: {str(e)}"
+                        f"Failed to create database tables after "
+                        f"{max_retries} attempts: {str(e)}"
                     )
 
     @app.before_request

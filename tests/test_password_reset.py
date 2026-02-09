@@ -1,15 +1,8 @@
 from datetime import timedelta
 
-import pytest
-
 from app.extensions import db
-from app.models import (
-    PasswordChangeHistory,
-    PasswordChangeReason,
-    PasswordResetToken,
-    utcnow,
-)
-from app.security import generate_token, hash_password, hash_token
+from app.models import PasswordResetToken, utcnow
+from app.security import generate_token, hash_token
 
 
 class TestForgotPassword:

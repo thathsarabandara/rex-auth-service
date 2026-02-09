@@ -1,5 +1,3 @@
-import pytest
-
 from app.security import (
     generate_numeric_otp,
     generate_token,

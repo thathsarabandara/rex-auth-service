@@ -52,7 +52,11 @@ class User(db.Model):
     email = db.Column(db.String(255), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     email_verified = db.Column(db.Boolean, default=False, nullable=False)
-    status = db.Column(db.Enum(UserStatus), default=UserStatus.ACTIVE, nullable=False)
+    status = db.Column(
+        db.Enum(UserStatus),
+        default=UserStatus.ACTIVE,
+        nullable=False,
+    )
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
     last_login_at = db.Column(db.DateTime(timezone=True))
 

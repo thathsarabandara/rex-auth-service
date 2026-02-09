@@ -1,10 +1,8 @@
 from datetime import timedelta
 
-import pytest
-
 from app.extensions import db
 from app.models import OtpPurpose, OtpSession, User, UserStatus, utcnow
-from app.security import generate_numeric_otp, generate_token, hash_token
+from app.security import generate_token, hash_token
 
 
 class TestRegisterInitiate:

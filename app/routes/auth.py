@@ -3,7 +3,7 @@ from datetime import timedelta
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
-from app.extensions import db, limiter
+from app.extensions import db
 from app.models import (
     AuthSession,
     LoginAttempt,
@@ -12,7 +12,6 @@ from app.models import (
     PasswordChangeHistory,
     PasswordChangeReason,
     PasswordResetToken,
-    Tenant,
     User,
     UserStatus,
     ensure_aware,
@@ -26,7 +25,7 @@ from app.security import (
     verify_password,
 )
 from app.services.email_service import send_email
-from app.services.token_service import issue_tokens, revoke_all_sessions
+from app.services.token_service import issue_tokens
 from app.utils.request_handlers import get_request_data
 from app.utils.responses import error_response
 from app.utils.tenantidGeneratory import get_or_create_tenant
@@ -187,7 +186,7 @@ def register_verify():
     user.status = UserStatus.ACTIVE
     otp_session.is_used = True
     db.session.commit()
-    logger.info(f"User {user.id} - {user.email} verified their email")
+    current_app.logger.info(f"User {user.id} - {user.email} verified their email")
 
     try:
         access_token, refresh_token = issue_tokens(
@@ -489,7 +488,7 @@ def validate_token():
             verify_jwt_in_request(
                 optional=False, fresh=False
             )  # This won't help, trying different approach
-        except:
+        except Exception:
             pass
 
         # Try to get refresh token from headers or cookies

@@ -1,9 +1,5 @@
-from datetime import timedelta
-
-import pytest
-
 from app.extensions import db
-from app.models import LoginAttempt, User, UserStatus, utcnow
+from app.models import LoginAttempt, User, UserStatus
 from app.security import hash_password
 
 

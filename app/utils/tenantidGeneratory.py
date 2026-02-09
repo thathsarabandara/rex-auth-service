@@ -1,6 +1,3 @@
-from datetime import datetime, timezone
-
-
 def get_or_create_tenant(email: str, username: str) -> int:
     """
     Get or create a tenant for a user and return its integer ID.
