@@ -50,7 +50,6 @@ Content-Type: application/json
 
 {
   "email": "demo@example.com",
-  "tenant_id": 1
 }
 
 ### Validate reset token
