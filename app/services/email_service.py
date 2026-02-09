@@ -1,9 +1,10 @@
-import smtplib
 import logging
-from email.mime.text import MIMEText
+import smtplib
 from email.mime.multipart import MIMEMultipart
-from flask import current_app, render_template_string
+from email.mime.text import MIMEText
 from pathlib import Path
+
+from flask import current_app, render_template_string
 
 logger = logging.getLogger(__name__)
 

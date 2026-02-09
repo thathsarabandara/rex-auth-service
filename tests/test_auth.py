@@ -1,9 +1,10 @@
-import pytest
-from app.models import OtpPurpose, OtpSession, User, UserStatus
-from app.security import hash_token, generate_numeric_otp, generate_token
-from app.extensions import db
 from datetime import timedelta
-from app.models import utcnow
+
+import pytest
+
+from app.extensions import db
+from app.models import OtpPurpose, OtpSession, User, UserStatus, utcnow
+from app.security import generate_numeric_otp, generate_token, hash_token
 
 
 class TestRegisterInitiate:

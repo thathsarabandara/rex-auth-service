@@ -1,9 +1,10 @@
-import pytest
-from app.models import LoginAttempt, UserStatus, User
-from app.security import hash_password
-from app.extensions import db
 from datetime import timedelta
-from app.models import utcnow
+
+import pytest
+
+from app.extensions import db
+from app.models import LoginAttempt, User, UserStatus, utcnow
+from app.security import hash_password
 
 
 class TestLoginAttempts:

@@ -3,7 +3,8 @@ Utility functions for handling multiple request content types securely.
 Supports both application/json and application/x-www-form-urlencoded.
 """
 
-from flask import request, current_app
+from flask import current_app, request
+
 from app.utils.responses import error_response
 
 

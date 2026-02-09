@@ -1,6 +1,6 @@
 import re
-from email_validator import validate_email, EmailNotValidError
 
+from email_validator import EmailNotValidError, validate_email
 
 PASSWORD_REGEX = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$")
 

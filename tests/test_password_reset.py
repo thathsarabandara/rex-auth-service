@@ -1,9 +1,11 @@
-import pytest
-from app.models import PasswordResetToken, PasswordChangeHistory, PasswordChangeReason
-from app.security import hash_password, hash_token, generate_token
-from app.extensions import db
 from datetime import timedelta
-from app.models import utcnow
+
+import pytest
+
+from app.extensions import db
+from app.models import (PasswordChangeHistory, PasswordChangeReason,
+                        PasswordResetToken, utcnow)
+from app.security import generate_token, hash_password, hash_token
 
 
 class TestForgotPassword:

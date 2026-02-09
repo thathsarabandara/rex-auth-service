@@ -1,38 +1,22 @@
 from datetime import timedelta
-from venv import logger
 
-from flask import Blueprint, request, jsonify, current_app
-from app.utils.tenantidGeneratory import get_or_create_tenant
-from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
+from flask import Blueprint, current_app, jsonify, request
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from app.extensions import db, limiter
-from app.models import (
-    User,
-    Tenant,
-    OtpSession,
-    OtpPurpose,
-    LoginAttempt,
-    UserStatus,
-    PasswordResetToken,
-    PasswordChangeHistory,
-    PasswordChangeReason,
-    AuthSession,
-    utcnow,
-    ensure_aware,
-)
-from app.security import (
-    hash_password,
-    verify_password,
-    generate_numeric_otp,
-    generate_token,
-    hash_token,
-)
+from app.models import (AuthSession, LoginAttempt, OtpPurpose, OtpSession,
+                        PasswordChangeHistory, PasswordChangeReason,
+                        PasswordResetToken, Tenant, User, UserStatus,
+                        ensure_aware, utcnow)
+from app.security import (generate_numeric_otp, generate_token, hash_password,
+                          hash_token, verify_password)
 from app.services.email_service import send_email
 from app.services.token_service import issue_tokens, revoke_all_sessions
-from app.utils.validators import validate_password_strength, validate_email_format
-from app.utils.responses import error_response
 from app.utils.request_handlers import get_request_data
-
+from app.utils.responses import error_response
+from app.utils.tenantidGeneratory import get_or_create_tenant
+from app.utils.validators import (validate_email_format,
+                                  validate_password_strength)
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 

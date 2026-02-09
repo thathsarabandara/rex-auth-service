@@ -1,13 +1,14 @@
-from flask import Flask, request, jsonify
-from pathlib import Path
-import time
 import logging
+import time
+from pathlib import Path
+
+from flask import Flask, jsonify, request
 
 from app.config import Config
-from app.extensions import db, migrate, jwt, limiter
+from app.csrf import csrf_blueprint, ensure_csrf
+from app.extensions import db, jwt, limiter, migrate
 from app.routes.auth import auth_bp
 from app.routes.health import health_bp
-from app.csrf import ensure_csrf, csrf_blueprint
 
 logger = logging.getLogger(__name__)
 

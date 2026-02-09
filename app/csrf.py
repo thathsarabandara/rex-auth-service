@@ -1,7 +1,6 @@
 import secrets
 
-from flask import Blueprint, jsonify, make_response, current_app
-
+from flask import Blueprint, current_app, jsonify, make_response
 
 csrf_blueprint = Blueprint("csrf", __name__, url_prefix="/auth")
 
