@@ -11,8 +11,9 @@ def issue_tokens(user, tenant_id: int, scopes=None, roles=None, device_info=None
     roles = roles or ["user"]
 
     additional_claims = {"tenant_id": tenant_id, "roles": roles, "scopes": scopes}
-    access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
-    refresh_token = create_refresh_token(identity=user.id, additional_claims=additional_claims)
+    identity = str(user.id)
+    access_token = create_access_token(identity=identity, additional_claims=additional_claims)
+    refresh_token = create_refresh_token(identity=identity, additional_claims=additional_claims)
 
     secret = current_app.config.get("JWT_SECRET_KEY", "dev-jwt-secret")
     access_token_hash = hash_token(access_token, secret)
