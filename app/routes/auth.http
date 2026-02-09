@@ -13,8 +13,16 @@ POST http://localhost:8000/auth/register/verify
 Content-Type: application/json
 
 {
-  "email": "demo@example.com",
   "otp": "123456",
+  "temp_token": "TOKEN_FROM_STEP1"
+}
+
+### Resend OTP
+POST http://localhost:8000/auth/register/resend-otp
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
   "temp_token": "TOKEN_FROM_STEP1"
 }
 
@@ -25,12 +33,16 @@ Content-Type: application/json
 {
   "email": "demo@example.com",
   "password": "StrongPass1",
-  "tenant_id": 1
 }
 
 ### Refresh token
 POST http://localhost:8000/auth/token/refresh
 Authorization: Bearer YOUR_REFRESH_TOKEN
+
+### Validate token (checks access token, refreshes if expired)
+GET http://localhost:8000/auth/token/validate
+Authorization: Bearer YOUR_ACCESS_TOKEN
+X-Refresh-Token: YOUR_REFRESH_TOKEN
 
 ### Forgot password
 POST http://localhost:8000/auth/password/forgot
@@ -40,6 +52,9 @@ Content-Type: application/json
   "email": "demo@example.com",
   "tenant_id": 1
 }
+
+### Validate reset token
+GET http://localhost:8000/auth/password/reset/validate?token=RESET_TOKEN_FROM_EMAIL
 
 ### Reset password
 POST http://localhost:8000/auth/password/reset
