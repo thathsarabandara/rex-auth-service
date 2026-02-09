@@ -555,9 +555,8 @@ def validate_token():
 def forgot_password():
     payload = get_request_data()
     email = payload.get("email")
-    tenant_id = payload.get("tenant_id")
 
-    if not all([email, tenant_id]):
+    if not all([email]):
         return error_response("Missing required fields")
     if not validate_email_format(email):
         return error_response("Invalid email")
@@ -567,10 +566,10 @@ def forgot_password():
     reset_token_hash = hash_token(reset_token, secret)
     expires_at = utcnow() + timedelta(minutes=current_app.config["RESET_TOKEN_EXPIRES_MINUTES"])
 
-    user = User.query.filter_by(email=email, tenant_id=tenant_id).first()
+    user = User.query.filter_by(email=email).first()
     reset_record = PasswordResetToken(
         email=email,
-        tenant_id=tenant_id,
+        tenant_id=user.tenant_id if user else None,
         user_id=user.id if user else None,
         token_hash=reset_token_hash,
         expires_at=expires_at,
