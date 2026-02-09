@@ -6,14 +6,20 @@ from app.models import AuthSession, utcnow
 from app.security import hash_token
 
 
-def issue_tokens(user, tenant_id: int, scopes=None, roles=None, device_info=None, ip_address=None):
+def issue_tokens(
+    user, tenant_id: int, scopes=None, roles=None, device_info=None, ip_address=None
+):
     scopes = scopes or ["robot:read", "robot:write"]
     roles = roles or ["user"]
 
     additional_claims = {"tenant_id": tenant_id, "roles": roles, "scopes": scopes}
     identity = str(user.id)
-    access_token = create_access_token(identity=identity, additional_claims=additional_claims)
-    refresh_token = create_refresh_token(identity=identity, additional_claims=additional_claims)
+    access_token = create_access_token(
+        identity=identity, additional_claims=additional_claims
+    )
+    refresh_token = create_refresh_token(
+        identity=identity, additional_claims=additional_claims
+    )
 
     secret = current_app.config.get("JWT_SECRET_KEY", "dev-jwt-secret")
     access_token_hash = hash_token(access_token, secret)
@@ -43,7 +49,9 @@ def revoke_session(session: AuthSession):
 
 
 def revoke_all_sessions(user_id: int):
-    AuthSession.query.filter_by(user_id=user_id, revoked=False).update({"revoked": True})
+    AuthSession.query.filter_by(user_id=user_id, revoked=False).update(
+        {"revoked": True}
+    )
     db.session.commit()
 
 

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class CustomFlask(Flask):
     """Custom Flask app that handles form data properly."""
-    
+
     def make_default_options_response(self):
         """Handle OPTIONS requests."""
         return super().make_default_options_response()
@@ -25,15 +25,15 @@ def create_app() -> Flask:
     template_dir = Path(__file__).parent / "templates"
     app = CustomFlask(__name__, template_folder=str(template_dir))
     app.config.from_object(Config)
-    
+
     # Disable strict JSON parsing to allow form data
-    app.config['JSON_AS_ASCII'] = False
-    
+    app.config["JSON_AS_ASCII"] = False
+
     # JWT configuration for cookie support
-    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
-    app.config['JWT_COOKIE_SECURE'] = app.config.get('CSRF_COOKIE_SECURE', False)
-    app.config['JWT_COOKIE_CSRF_PROTECT'] = True
-    app.config['JWT_COOKIE_SAMESITE'] = app.config.get('CSRF_COOKIE_SAMESITE', 'None')
+    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+    app.config["JWT_COOKIE_SECURE"] = app.config.get("CSRF_COOKIE_SECURE", False)
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+    app.config["JWT_COOKIE_SAMESITE"] = app.config.get("CSRF_COOKIE_SAMESITE", "None")
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -50,32 +50,42 @@ def create_app() -> Flask:
         retry_count = 0
         while retry_count < max_retries:
             try:
-                app.logger.info(f"Attempting to create database tables (attempt {retry_count + 1}/{max_retries})")
+                app.logger.info(
+                    f"Attempting to create database tables (attempt {retry_count + 1}/{max_retries})"
+                )
                 db.create_all()
                 app.logger.info("✓ Database tables created/verified successfully")
                 break
             except Exception as e:
                 retry_count += 1
                 if retry_count < max_retries:
-                    app.logger.warning(f"Database not ready yet: {str(e)}. Retrying in 2 seconds...")
+                    app.logger.warning(
+                        f"Database not ready yet: {str(e)}. Retrying in 2 seconds..."
+                    )
                     time.sleep(2)
                 else:
-                    app.logger.error(f"Failed to create database tables after {max_retries} attempts: {str(e)}")
+                    app.logger.error(
+                        f"Failed to create database tables after {max_retries} attempts: {str(e)}"
+                    )
 
     @app.before_request
     def _csrf_protect():
         response = ensure_csrf(request, app.config)
         if response:
             return response
-    
+
     @app.before_request
     def _handle_preflight():
         """Handle preflight requests."""
         if request.method == "OPTIONS":
             response = jsonify({"status": "ok"})
             response.headers.add("Access-Control-Allow-Origin", "*")
-            response.headers.add("Access-Control-Allow-Headers", "Content-Type,X-CSRF-Token")
-            response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+            response.headers.add(
+                "Access-Control-Allow-Headers", "Content-Type,X-CSRF-Token"
+            )
+            response.headers.add(
+                "Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS"
+            )
             return response
 
     @app.errorhandler(404)
@@ -85,11 +95,11 @@ def create_app() -> Flask:
     @app.errorhandler(429)
     def _rate_limited(_error):
         return jsonify({"message": "Too many requests"}), 429
-    
+
     @app.errorhandler(415)
     def _unsupported_media_type(_error):
         return jsonify({"message": "Unsupported media type"}), 415
-    
+
     @app.errorhandler(400)
     def _bad_request(error):
         return jsonify({"message": "Invalid request format"}), 400

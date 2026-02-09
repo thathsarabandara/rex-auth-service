@@ -99,7 +99,9 @@ class LoginAttempt(db.Model):
     tenant_id = db.Column(db.Integer, db.ForeignKey("tenants.id"), nullable=False)
     attempt_count = db.Column(db.Integer, default=0, nullable=False)
     ban_until = db.Column(db.DateTime(timezone=True))
-    last_attempt_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    last_attempt_at = db.Column(
+        db.DateTime(timezone=True), default=utcnow, nullable=False
+    )
 
     __table_args__ = (
         db.UniqueConstraint("tenant_id", "email", name="uq_login_attempts"),

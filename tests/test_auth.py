@@ -58,7 +58,9 @@ class TestRegisterInitiate:
         assert response.status_code == 400
         assert "Invalid email" in response.get_json()["message"]
 
-    def test_register_initiate_duplicate_email(self, client, default_tenant, default_user):
+    def test_register_initiate_duplicate_email(
+        self, client, default_tenant, default_user
+    ):
         response = client.post(
             "/auth/register/initiate",
             json={
@@ -149,7 +151,11 @@ class TestRegisterVerify:
 
         response = client.post(
             "/auth/register/verify",
-            json={"email": "new@example.com", "otp": "000000", "temp_token": temp_token},
+            json={
+                "email": "new@example.com",
+                "otp": "000000",
+                "temp_token": temp_token,
+            },
         )
         assert response.status_code == 400
         assert "Invalid OTP" in response.get_json()["message"]
@@ -188,7 +194,11 @@ class TestRegisterVerify:
 
         response = client.post(
             "/auth/register/verify",
-            json={"email": "new@example.com", "otp": "000000", "temp_token": temp_token},
+            json={
+                "email": "new@example.com",
+                "otp": "000000",
+                "temp_token": temp_token,
+            },
         )
         assert response.status_code == 429
         assert "OTP attempts exceeded" in response.get_json()["message"]

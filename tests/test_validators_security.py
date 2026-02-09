@@ -1,9 +1,13 @@
 import pytest
 
-from app.security import (generate_numeric_otp, generate_token, hash_password,
-                          hash_token, verify_password)
-from app.utils.validators import (validate_email_format,
-                                  validate_password_strength)
+from app.security import (
+    generate_numeric_otp,
+    generate_token,
+    hash_password,
+    hash_token,
+    verify_password,
+)
+from app.utils.validators import validate_email_format, validate_password_strength
 
 
 class TestValidators:

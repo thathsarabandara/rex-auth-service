@@ -4,21 +4,36 @@ from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from app.extensions import db, limiter
-from app.models import (AuthSession, LoginAttempt, OtpPurpose, OtpSession,
-                        PasswordChangeHistory, PasswordChangeReason,
-                        PasswordResetToken, Tenant, User, UserStatus,
-                        ensure_aware, utcnow)
-from app.security import (generate_numeric_otp, generate_token, hash_password,
-                          hash_token, verify_password)
+from app.models import (
+    AuthSession,
+    LoginAttempt,
+    OtpPurpose,
+    OtpSession,
+    PasswordChangeHistory,
+    PasswordChangeReason,
+    PasswordResetToken,
+    Tenant,
+    User,
+    UserStatus,
+    ensure_aware,
+    utcnow,
+)
+from app.security import (
+    generate_numeric_otp,
+    generate_token,
+    hash_password,
+    hash_token,
+    verify_password,
+)
 from app.services.email_service import send_email
 from app.services.token_service import issue_tokens, revoke_all_sessions
 from app.utils.request_handlers import get_request_data
 from app.utils.responses import error_response
 from app.utils.tenantidGeneratory import get_or_create_tenant
-from app.utils.validators import (validate_email_format,
-                                  validate_password_strength)
+from app.utils.validators import validate_email_format, validate_password_strength
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+
 
 # Rate limiting decorator - can be disabled via config
 def _rate_limit(limit_str: str):
@@ -26,10 +41,13 @@ def _rate_limit(limit_str: str):
         # Rate limiting is applied at init time in app/__init__.py
         # This decorator is a placeholder for documentation
         return func
+
     return decorator
 
 
-def _set_token_cookies(response, access_token: str, refresh_token: str, expires_in: int):
+def _set_token_cookies(
+    response, access_token: str, refresh_token: str, expires_in: int
+):
     """Set access and refresh tokens as httpOnly cookies."""
     # Access token cookie (short-lived, in-memory)
     response.set_cookie(
@@ -39,11 +57,13 @@ def _set_token_cookies(response, access_token: str, refresh_token: str, expires_
         httponly=True,
         secure=current_app.config.get("CSRF_COOKIE_SECURE", False),
         samesite=current_app.config.get("CSRF_COOKIE_SAMESITE", "None"),
-        path="/"
+        path="/",
     )
-    
+
     # Refresh token cookie (long-lived)
-    refresh_expires = int(current_app.config["JWT_REFRESH_TOKEN_EXPIRES"].total_seconds())
+    refresh_expires = int(
+        current_app.config["JWT_REFRESH_TOKEN_EXPIRES"].total_seconds()
+    )
     response.set_cookie(
         "refresh_token",
         refresh_token,
@@ -51,9 +71,9 @@ def _set_token_cookies(response, access_token: str, refresh_token: str, expires_
         httponly=True,
         secure=current_app.config.get("CSRF_COOKIE_SECURE", False),
         samesite=current_app.config.get("CSRF_COOKIE_SAMESITE", "None"),
-        path="/"
+        path="/",
     )
-    
+
     return response
 
 
@@ -139,7 +159,9 @@ def register_verify():
 
     secret = current_app.config.get("SECRET_KEY")
     temp_token_hash = hash_token(temp_token, secret)
-    otp_session = OtpSession.query.filter_by(email=email, temp_token=temp_token_hash, purpose=OtpPurpose.REGISTER).first()
+    otp_session = OtpSession.query.filter_by(
+        email=email, temp_token=temp_token_hash, purpose=OtpPurpose.REGISTER
+    ).first()
 
     if not otp_session:
         return error_response("Invalid or expired OTP session", 400)
@@ -166,7 +188,7 @@ def register_verify():
     otp_session.is_used = True
     db.session.commit()
     logger.info(f"User {user.id} - {user.email} verified their email")
-    
+
     try:
         access_token, refresh_token = issue_tokens(
             user,
@@ -190,7 +212,9 @@ def register_verify():
             },
         )
     except Exception as e:
-        current_app.logger.error(f"Error sending welcome email: {type(e).__name__}: {str(e)}")
+        current_app.logger.error(
+            f"Error sending welcome email: {type(e).__name__}: {str(e)}"
+        )
         current_app.logger.exception("Full traceback:")
         # Don't fail the entire registration if email fails, just log it
 
@@ -199,18 +223,20 @@ def register_verify():
             "tenant_id": user.tenant_id,
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "expires_in": int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
+            "expires_in": int(
+                current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()
+            ),
         }
     )
-    
+
     # Set tokens in httpOnly cookies
     _set_token_cookies(
         response,
         access_token,
         refresh_token,
-        int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds())
+        int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
     )
-    
+
     return response
 
 
@@ -230,12 +256,10 @@ def resend_otp():
 
     secret = current_app.config.get("SECRET_KEY")
     temp_token_hash = hash_token(temp_token, secret)
-    
+
     # Find the OTP session
     otp_session = OtpSession.query.filter_by(
-        email=email, 
-        temp_token=temp_token_hash, 
-        purpose=OtpPurpose.REGISTER
+        email=email, temp_token=temp_token_hash, purpose=OtpPurpose.REGISTER
     ).first()
 
     if not otp_session:
@@ -244,12 +268,13 @@ def resend_otp():
     # Check if 2 minutes have passed since last send
     time_since_last_send = utcnow() - ensure_aware(otp_session.sent_at)
     resend_cooldown_seconds = 120  # 2 minutes
-    
+
     if time_since_last_send.total_seconds() < resend_cooldown_seconds:
-        seconds_remaining = int(resend_cooldown_seconds - time_since_last_send.total_seconds())
+        seconds_remaining = int(
+            resend_cooldown_seconds - time_since_last_send.total_seconds()
+        )
         return error_response(
-            f"Please wait {seconds_remaining} seconds before requesting a new OTP",
-            429
+            f"Please wait {seconds_remaining} seconds before requesting a new OTP", 429
         )
 
     # Generate new OTP and temp token
@@ -263,7 +288,9 @@ def resend_otp():
     otp_session.temp_token = new_temp_token_hash
     otp_session.sent_at = utcnow()
     otp_session.attempts = 0  # Reset attempts on resend
-    otp_session.expires_at = utcnow() + timedelta(minutes=current_app.config["OTP_EXPIRES_MINUTES"])
+    otp_session.expires_at = utcnow() + timedelta(
+        minutes=current_app.config["OTP_EXPIRES_MINUTES"]
+    )
     db.session.commit()
 
     # Send OTP email
@@ -278,7 +305,9 @@ def resend_otp():
             },
         )
     except Exception as e:
-        current_app.logger.error(f"Error sending resend OTP email: {type(e).__name__}: {str(e)}")
+        current_app.logger.error(
+            f"Error sending resend OTP email: {type(e).__name__}: {str(e)}"
+        )
         current_app.logger.exception("Full traceback:")
 
     return jsonify({"message": "OTP resent successfully", "temp_token": new_temp_token})
@@ -352,18 +381,20 @@ def login():
             "access_token": access_token,
             "refresh_token": refresh_token,
             "tenant_id": user.tenant_id,
-            "expires_in": int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
+            "expires_in": int(
+                current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()
+            ),
         }
     )
-    
+
     # Set tokens in httpOnly cookies
     _set_token_cookies(
         response,
         access_token,
         refresh_token,
-        int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds())
+        int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
     )
-    
+
     return response
 
 
@@ -399,18 +430,20 @@ def refresh_token():
             "access_token": access_token,
             "refresh_token": refresh_token,
             "tenant_id": session.tenant_id,
-            "expires_in": int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
+            "expires_in": int(
+                current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()
+            ),
         }
     )
-    
+
     # Set tokens in httpOnly cookies
     _set_token_cookies(
         response,
         access_token,
         refresh_token,
-        int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds())
+        int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
     )
-    
+
     return response
 
 
@@ -419,117 +452,129 @@ def refresh_token():
 def validate_token():
     """
     Validate access token. If expired, attempt to refresh using refresh token.
-    Returns: 
+    Returns:
       - 200: Token is valid
       - 200 with new tokens: Token was refreshed
       - 401: Both tokens are invalid/expired
     """
     from flask_jwt_extended import verify_jwt_in_request
     from flask_jwt_extended.exceptions import JWTExtendedException
-    
+
     try:
         # Try to verify access token
         verify_jwt_in_request(optional=False)
         user_id = get_jwt_identity()
         jwt_data = get_jwt()
-        
+
         # Access token is valid
         user = User.query.get(user_id)
         if not user:
             return error_response("User not found", 404)
-        
-        return jsonify({
-            "message": "Token is valid",
-            "user_id": str(user_id),
-            "email": user.email,
-            "username": user.username,
-            "tenant_id": jwt_data.get("tenant_id"),
-            "is_expired": False,
-            "refreshed": False
-        })
-    
+
+        return jsonify(
+            {
+                "message": "Token is valid",
+                "user_id": str(user_id),
+                "email": user.email,
+                "username": user.username,
+                "tenant_id": jwt_data.get("tenant_id"),
+                "is_expired": False,
+                "refreshed": False,
+            }
+        )
+
     except JWTExtendedException:
         # Access token is invalid or expired, try to refresh
         try:
-            verify_jwt_in_request(optional=False, fresh=False)  # This won't help, trying different approach
+            verify_jwt_in_request(
+                optional=False, fresh=False
+            )  # This won't help, trying different approach
         except:
             pass
-        
+
         # Try to get refresh token from headers or cookies
         refresh_token = None
         auth_header = request.headers.get("Authorization", "")
-        
+
         if auth_header.startswith("Bearer "):
             # This would be access token, not refresh
             pass
-        
+
         # Try to get refresh token from cookies
         refresh_token = request.cookies.get("refresh_token")
-        
+
         if not refresh_token:
             # Try to get from Authorization header with "Refresh" prefix
             refresh_header = request.headers.get("X-Refresh-Token", "")
             if refresh_header:
                 refresh_token = refresh_header
-        
+
         if not refresh_token:
-            return error_response("Access token expired and no refresh token provided", 401)
-        
+            return error_response(
+                "Access token expired and no refresh token provided", 401
+            )
+
         # Verify and use refresh token
         try:
             verify_jwt_in_request(refresh=True)
             jwt_data = get_jwt()
             user_id = get_jwt_identity()
             jti = jwt_data.get("jti")
-            
+
             # Find and validate session
-            session = AuthSession.query.filter_by(refresh_token_jti=jti, revoked=False).first()
+            session = AuthSession.query.filter_by(
+                refresh_token_jti=jti, revoked=False
+            ).first()
             if not session:
                 return error_response("Invalid refresh token session", 401)
-            
+
             if ensure_aware(session.expires_at) < utcnow():
                 session.revoked = True
                 db.session.commit()
                 return error_response("Refresh token expired", 401)
-            
+
             # Revoke old session and issue new tokens
             session.revoked = True
             db.session.commit()
-            
+
             user = User.query.get(user_id)
             if not user:
                 return error_response("User not found", 404)
-            
+
             new_access_token, new_refresh_token = issue_tokens(
                 user,
                 tenant_id=session.tenant_id,
                 device_info=request.headers.get("User-Agent"),
                 ip_address=request.remote_addr,
             )
-            
-            response = jsonify({
-                "message": "Token refreshed successfully",
-                "user_id": str(user_id),
-                "email": user.email,
-                "username": user.username,
-                "tenant_id": session.tenant_id,
-                "access_token": new_access_token,
-                "refresh_token": new_refresh_token,
-                "is_expired": True,
-                "refreshed": True,
-                "expires_in": int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
-            })
-            
+
+            response = jsonify(
+                {
+                    "message": "Token refreshed successfully",
+                    "user_id": str(user_id),
+                    "email": user.email,
+                    "username": user.username,
+                    "tenant_id": session.tenant_id,
+                    "access_token": new_access_token,
+                    "refresh_token": new_refresh_token,
+                    "is_expired": True,
+                    "refreshed": True,
+                    "expires_in": int(
+                        current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()
+                    ),
+                }
+            )
+
             # Set new tokens in cookies
             _set_token_cookies(
                 response,
                 new_access_token,
                 new_refresh_token,
-                int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds())
+                int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
             )
-            
+
             return response
-        
+
         except JWTExtendedException:
             return error_response("Refresh token is also invalid or expired", 401)
 
@@ -548,7 +593,9 @@ def forgot_password():
     secret = current_app.config.get("SECRET_KEY")
     reset_token = generate_token()
     reset_token_hash = hash_token(reset_token, secret)
-    expires_at = utcnow() + timedelta(minutes=current_app.config["RESET_TOKEN_EXPIRES_MINUTES"])
+    expires_at = utcnow() + timedelta(
+        minutes=current_app.config["RESET_TOKEN_EXPIRES_MINUTES"]
+    )
 
     user = User.query.filter_by(email=email).first()
     reset_record = PasswordResetToken(
@@ -560,7 +607,9 @@ def forgot_password():
     )
     db.session.add(reset_record)
     db.session.commit()
-    reset_url = f"{current_app.config['FRONTEND_BASE_URL']}/reset-password?token={reset_token}"
+    reset_url = (
+        f"{current_app.config['FRONTEND_BASE_URL']}/reset-password?token={reset_token}"
+    )
     send_email(
         to_email=email,
         subject="Reset Your Password - REX",
@@ -580,39 +629,43 @@ def forgot_password():
 def validate_reset_token():
     """Validate password reset token before allowing password change."""
     reset_token = request.args.get("token")
-    
+
     if not reset_token:
         return error_response("Missing reset token", 400)
-    
+
     secret = current_app.config.get("SECRET_KEY")
     reset_token_hash = hash_token(reset_token, secret)
-    
+
     # Check if token exists and hasn't been used
-    record = PasswordResetToken.query.filter_by(token_hash=reset_token_hash, used_at=None).first()
-    
+    record = PasswordResetToken.query.filter_by(
+        token_hash=reset_token_hash, used_at=None
+    ).first()
+
     if not record:
         return error_response("Invalid or already used token", 400)
-    
+
     # Check if token has expired
     if ensure_aware(record.expires_at) < utcnow():
         return error_response("Token has expired", 400)
-    
+
     # Check if user exists
     if not record.user_id:
         return error_response("Invalid token", 400)
-    
+
     user = User.query.get(record.user_id)
     if not user:
         return error_response("User not found", 404)
-    
+
     # Token is valid
-    return jsonify({
-        "message": "Token is valid",
-        "email": user.email,
-        "username": user.username,
-        "token_expiry_minutes": current_app.config["RESET_TOKEN_EXPIRES_MINUTES"],
-        "expires_at": record.expires_at.isoformat() if record.expires_at else None
-    })
+    return jsonify(
+        {
+            "message": "Token is valid",
+            "email": user.email,
+            "username": user.username,
+            "token_expiry_minutes": current_app.config["RESET_TOKEN_EXPIRES_MINUTES"],
+            "expires_at": record.expires_at.isoformat() if record.expires_at else None,
+        }
+    )
 
 
 @auth_bp.route("/password/reset", methods=["POST"])
@@ -630,7 +683,9 @@ def reset_password():
     secret = current_app.config.get("SECRET_KEY")
     reset_token_hash = hash_token(reset_token, secret)
 
-    record = PasswordResetToken.query.filter_by(token_hash=reset_token_hash, used_at=None).first()
+    record = PasswordResetToken.query.filter_by(
+        token_hash=reset_token_hash, used_at=None
+    ).first()
     if not record or ensure_aware(record.expires_at) < utcnow():
         return error_response("Invalid or expired token", 400)
     if not record.user_id:

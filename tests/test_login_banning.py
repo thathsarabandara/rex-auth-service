@@ -26,7 +26,9 @@ class TestLoginAttempts:
             ).first()
             assert attempt.attempt_count == 3
 
-    def test_login_attempt_fourth_triggers_temp_ban(self, client, default_tenant, default_user):
+    def test_login_attempt_fourth_triggers_temp_ban(
+        self, client, default_tenant, default_user
+    ):
         for i in range(4):
             client.post(
                 "/auth/login",

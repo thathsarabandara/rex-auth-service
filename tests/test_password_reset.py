@@ -3,8 +3,12 @@ from datetime import timedelta
 import pytest
 
 from app.extensions import db
-from app.models import (PasswordChangeHistory, PasswordChangeReason,
-                        PasswordResetToken, utcnow)
+from app.models import (
+    PasswordChangeHistory,
+    PasswordChangeReason,
+    PasswordResetToken,
+    utcnow,
+)
 from app.security import generate_token, hash_password, hash_token
 
 
@@ -28,7 +32,9 @@ class TestForgotPassword:
         assert "Invalid email" in response.get_json()["message"]
 
     def test_forgot_password_missing_fields(self, client):
-        response = client.post("/auth/password/forgot", json={"email": "test@example.com"})
+        response = client.post(
+            "/auth/password/forgot", json={"email": "test@example.com"}
+        )
         assert response.status_code == 400
         assert "Missing required fields" in response.get_json()["message"]
 
@@ -58,7 +64,9 @@ class TestResetPassword:
         data = response.get_json()
         assert data["message"] == "Password updated"
 
-    def test_reset_password_weak_password(self, client, default_tenant, default_user, app):
+    def test_reset_password_weak_password(
+        self, client, default_tenant, default_user, app
+    ):
         with app.app_context():
             secret = app.config.get("SECRET_KEY")
             reset_token = generate_token()
@@ -81,7 +89,9 @@ class TestResetPassword:
         assert response.status_code == 400
         assert "Weak password" in response.get_json()["message"]
 
-    def test_reset_password_expired_token(self, client, default_tenant, default_user, app):
+    def test_reset_password_expired_token(
+        self, client, default_tenant, default_user, app
+    ):
         with app.app_context():
             secret = app.config.get("SECRET_KEY")
             reset_token = generate_token()
