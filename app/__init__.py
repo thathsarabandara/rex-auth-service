@@ -21,10 +21,14 @@ class CustomFlask(Flask):
         return super().make_default_options_response()
 
 
-def create_app() -> Flask:
+def create_app(config_overrides=None) -> Flask:
     template_dir = Path(__file__).parent / "templates"
     app = CustomFlask(__name__, template_folder=str(template_dir))
     app.config.from_object(Config)
+
+    # Apply config overrides (useful for testing)
+    if config_overrides:
+        app.config.update(config_overrides)
 
     # Disable strict JSON parsing to allow form data
     app.config["JSON_AS_ASCII"] = False
