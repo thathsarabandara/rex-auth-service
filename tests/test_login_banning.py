@@ -118,4 +118,3 @@ class TestUserBanning:
         )
         assert response.status_code == 403
         assert "permanently banned" in response.get_json()["message"]
-
