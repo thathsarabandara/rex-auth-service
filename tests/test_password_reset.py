@@ -10,7 +10,7 @@ class TestForgotPassword:
         with app.app_context():
             response = client.post(
                 "/auth/password/forgot",
-                json={"email": default_user.email, "tenant_id": default_tenant.id},
+                json={"email": default_user.email},
             )
             assert response.status_code == 200
             data = response.get_json()
@@ -19,15 +19,13 @@ class TestForgotPassword:
     def test_forgot_password_invalid_email(self, client, default_tenant):
         response = client.post(
             "/auth/password/forgot",
-            json={"email": "invalid-email", "tenant_id": default_tenant.id},
+            json={"email": "invalid-email"},
         )
         assert response.status_code == 400
         assert "Invalid email" in response.get_json()["message"]
 
     def test_forgot_password_missing_fields(self, client):
-        response = client.post(
-            "/auth/password/forgot", json={"email": "test@example.com"}
-        )
+        response = client.post("/auth/password/forgot", json={})
         assert response.status_code == 400
         assert "Missing required fields" in response.get_json()["message"]
 
