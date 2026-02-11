@@ -14,7 +14,6 @@ class TestRegisterInitiate:
                     "username": "newuser",
                     "email": "new@example.com",
                     "password": "StrongPass1",
-                    "tenant_id": default_tenant.id,
                 },
             )
             assert response.status_code == 200
@@ -37,7 +36,6 @@ class TestRegisterInitiate:
                 "username": "newuser",
                 "email": "new@example.com",
                 "password": "weak",
-                "tenant_id": default_tenant.id,
             },
         )
         assert response.status_code == 400
@@ -50,7 +48,6 @@ class TestRegisterInitiate:
                 "username": "newuser",
                 "email": "invalid-email",
                 "password": "StrongPass1",
-                "tenant_id": default_tenant.id,
             },
         )
         assert response.status_code == 400
@@ -65,7 +62,6 @@ class TestRegisterInitiate:
                 "username": "newuser",
                 "email": default_user.email,
                 "password": "StrongPass1",
-                "tenant_id": default_tenant.id,
             },
         )
         assert response.status_code == 409
@@ -95,7 +91,6 @@ class TestRegisterVerify:
 
             otp_session = OtpSession(
                 email="new@example.com",
-                tenant_id=default_tenant.id,
                 otp_hash=otp_hash,
                 temp_token=temp_token_hash,
                 expires_at=utcnow() + timedelta(minutes=5),
@@ -113,7 +108,7 @@ class TestRegisterVerify:
         data = response.get_json()
         assert "access_token" in data
         assert "refresh_token" in data
-        assert data["tenant_id"] == str(default_tenant.id)
+        assert data["tenant_id"] == default_tenant.id
 
     def test_register_verify_invalid_otp(self, client, default_tenant, app):
         with app.app_context():
@@ -137,7 +132,6 @@ class TestRegisterVerify:
 
             otp_session = OtpSession(
                 email="new@example.com",
-                tenant_id=default_tenant.id,
                 otp_hash=otp_hash,
                 temp_token=temp_token_hash,
                 expires_at=utcnow() + timedelta(minutes=5),
@@ -180,7 +174,6 @@ class TestRegisterVerify:
 
             otp_session = OtpSession(
                 email="new@example.com",
-                tenant_id=default_tenant.id,
                 otp_hash=otp_hash,
                 temp_token=temp_token_hash,
                 expires_at=utcnow() + timedelta(minutes=5),
@@ -209,13 +202,13 @@ class TestLogin:
             json={
                 "email": default_user.email,
                 "password": "StrongPass1",
-                "tenant_id": default_tenant.id,
             },
         )
         assert response.status_code == 200
         data = response.get_json()
         assert "access_token" in data
         assert "refresh_token" in data
+        assert data["tenant_id"] == default_tenant.id
 
     def test_login_invalid_credentials(self, client, default_tenant, default_user):
         response = client.post(
@@ -223,7 +216,6 @@ class TestLogin:
             json={
                 "email": default_user.email,
                 "password": "WrongPass",
-                "tenant_id": default_tenant.id,
             },
         )
         assert response.status_code == 401
@@ -254,7 +246,6 @@ class TestLogin:
             json={
                 "email": "unverified@example.com",
                 "password": "StrongPass1",
-                "tenant_id": default_tenant.id,
             },
         )
         assert response.status_code == 403
@@ -275,4 +266,8 @@ class TestCSRF:
         assert response.status_code == 200
         data = response.get_json()
         assert "csrf_token" in data
-        assert response.cookies.get("csrf_token") is not None
+        assert (
+            "csrf_token" in response.headers.getlist("Set-Cookie")[0]
+            if response.headers.getlist("Set-Cookie")
+            else None
+        )
