@@ -121,7 +121,6 @@ def register_initiate():
     expires_at = utcnow() + timedelta(minutes=current_app.config["OTP_EXPIRES_MINUTES"])
     otp_session = OtpSession(
         email=email,
-        tenant_id=tenant_id,
         otp_hash=otp_hash,
         temp_token=temp_token_hash,
         expires_at=expires_at,
@@ -142,7 +141,19 @@ def register_initiate():
         },
     )
 
-    return jsonify({"message": "OTP sent", "temp_token": temp_token})
+    response = jsonify({"message": "OTP sent", "temp_token": temp_token})
+    response.set_cookie(
+        "temp_token",
+        temp_token,
+        max_age=int(
+            timedelta(minutes=current_app.config["OTP_EXPIRES_MINUTES"]).total_seconds()
+        ),
+        httponly=True,
+        secure=current_app.config.get("CSRF_COOKIE_SECURE", False),
+        samesite=current_app.config.get("CSRF_COOKIE_SAMESITE", "None"),
+        path="/",
+    )
+    return response
 
 
 @auth_bp.route("/register/verify", methods=["POST"])
@@ -178,7 +189,7 @@ def register_verify():
         db.session.commit()
         return error_response("Invalid OTP", 400)
 
-    user = User.query.filter_by(email=email, tenant_id=otp_session.tenant_id).first()
+    user = User.query.filter_by(email=email).first()
     if not user:
         return error_response("User not found", 404)
 
@@ -309,7 +320,21 @@ def resend_otp():
         )
         current_app.logger.exception("Full traceback:")
 
-    return jsonify({"message": "OTP resent successfully", "temp_token": new_temp_token})
+    response = jsonify(
+        {"message": "OTP resent successfully", "temp_token": new_temp_token}
+    )
+    response.set_cookie(
+        "temp_token",
+        new_temp_token,
+        max_age=int(
+            timedelta(minutes=current_app.config["OTP_EXPIRES_MINUTES"]).total_seconds()
+        ),
+        httponly=True,
+        secure=current_app.config.get("CSRF_COOKIE_SECURE", False),
+        samesite=current_app.config.get("CSRF_COOKIE_SAMESITE", "None"),
+        path="/",
+    )
+    return response
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -330,7 +355,10 @@ def login():
 
     user = User.query.filter_by(email=email).first()
     if not user or not verify_password(password, user.password_hash):
-        attempt = attempt or LoginAttempt(email=email, attempt_count=0)
+        tenant_id = user.tenant_id if user else None
+        attempt = attempt or LoginAttempt(
+            email=email, tenant_id=tenant_id, attempt_count=0
+        )
         attempt.attempt_count += 1
         attempt.last_attempt_at = now
 
