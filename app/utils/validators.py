@@ -11,7 +11,7 @@ def validate_password_strength(password: str) -> bool:
 
 def validate_email_format(email: str) -> bool:
     try:
-        validate_email(email)
+        validate_email(email, check_deliverability=False)
         return True
     except EmailNotValidError:
         return False
